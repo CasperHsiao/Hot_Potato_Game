@@ -155,7 +155,7 @@ int listen_for_player_connections(int listener_fd,
         return -1;
       }
     }
-    std::cout << clientIP << std::endl;
+
     if (client_fd == -1) {
       std::cerr << "Error: failed to accpet client connection from " << clientIP
                 << std::endl;
@@ -327,6 +327,7 @@ void play_game(struct pollfd * pfds,
                int ringmaster_fd,
                int num_players) {
   struct potato potato;
+  std::srand((unsigned int)time(NULL) + player_id);
   while (true) {
     int poll_count = poll(pfds, pfds_size, -1);
     if (poll_count == -1) {
@@ -350,7 +351,6 @@ void play_game(struct pollfd * pfds,
             potato.trace[potato.size] = player_id;
             potato.size++;
             potato.hops_left--;
-            std::srand((unsigned int)time(NULL) + player_id);
             int random_index = std::rand() % 2;  // 0 or 1
             int neigh_id = (player_id + 1) % num_players;
             if (random_index == 0) {
