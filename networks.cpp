@@ -327,7 +327,7 @@ void play_game(struct pollfd * pfds,
                int ringmaster_fd,
                int num_players) {
   struct potato potato;
-  std::srand((unsigned int)time(NULL) + player_id);
+  srand((unsigned int)time(NULL) + player_id);
   while (true) {
     int poll_count = poll(pfds, pfds_size, -1);
     if (poll_count == -1) {
@@ -359,11 +359,8 @@ void play_game(struct pollfd * pfds,
                 neigh_id = num_players - 1;
               }
             }
-            else {
-              neigh_id = (player_id + 1) % num_players;
-            }
             std::cout << "Sending potato to " << neigh_id << std::endl;
-            send_buffer(pfds[2].fd, &potato, sizeof(potato), 0);
+            send_buffer(pfds[random_index + 1].fd, &potato, sizeof(potato), 0);
           }
         }
         else if (pfds[i].fd == ringmaster_fd) {

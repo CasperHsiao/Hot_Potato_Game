@@ -50,10 +50,11 @@ int main(int argc, char * argv[]) {
   memset(&potato, 0, sizeof(potato));
   potato.size = 0;
   potato.hops_left = num_hops;
+  srand((unsigned int)time(NULL));
   int random_id = std::rand() % num_players;
   std::cout << "Ready to start the game, sending potato to player " << random_id
             << std::endl;
-  if (send_buffer(pfds[random_id].fd, &potato, sizeof(potato), 0) == -1) {
+  if (send_buffer(pfds[0].fd, &potato, sizeof(potato), 0) == -1) {
     std::cerr << "Error: player " << random_id << " has disconnected" << std::endl;
     return EXIT_FAILURE;
   }
