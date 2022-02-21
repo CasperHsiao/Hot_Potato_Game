@@ -1,20 +1,22 @@
 #include "networks.hpp"
 
-void block_program() {
-  while (true) {
-  }
-}
-
+/*
+ * Gets the port number of the given socket file descriptor.
+ * Returns -1 on error.
+ */
 int get_port_num(int socket_fd) {
   struct sockaddr_in sin;
   socklen_t socklen = sizeof(sin);
   if (getsockname(socket_fd, (struct sockaddr *)&sin, &socklen) == -1) {
     std::cerr << "Error: failed to get port number" << std::endl;
-    throw std::exception();
+    return -1;
   }
   return ntohs(sin.sin_port);
 }
 
+/*
+ * Returns socket internet address.
+ */
 void * get_in_addr(struct sockaddr * sa) {
   if (sa->sa_family == AF_INET) {
     return &(((struct sockaddr_in *)sa)->sin_addr);
@@ -23,6 +25,10 @@ void * get_in_addr(struct sockaddr * sa) {
   return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
+/*
+ * A send() wrapper function that ensures the specified amount of bytes are sent.
+ * Returns -1 on error.
+ */
 ssize_t send_buffer(int target_fd, const void * buf, size_t len, int flags) {
   ssize_t bytes_sent;
   ssize_t total_bytes_sent = 0;
@@ -40,12 +46,19 @@ ssize_t send_buffer(int target_fd, const void * buf, size_t len, int flags) {
   return total_bytes_sent;
 }
 
+/*
+ * Deletes the given array of player IPs.
+ */
 void delete_player_IPs(char * player_IPs[], int num_players) {
   for (int i = 0; i < num_players; i++) {
     delete[] player_IPs[i];
   }
 }
 
+/*
+ * Gets the file descriptor of the listener socket on localhost.
+ * Returns -1 on error.
+ */
 int get_listener_socket(const char * port) {
   int sock_fd;
   struct addrinfo host_info, *host_info_list, *p;
@@ -106,6 +119,11 @@ int get_listener_socket(const char * port) {
   return sock_fd;
 }
 
+/*
+ * Listens for player connection with the given amount of players.
+ * Stores the connected socket file descriptor into pfds and client IP into player_IPs.
+ * Returns -1 on error.
+ */
 int listen_for_player_connections(int listener_fd,
                                   struct pollfd * pfds,
                                   int num_players,
@@ -131,6 +149,13 @@ int listen_for_player_connections(int listener_fd,
               get_in_addr((struct sockaddr *)&client_addr),
               clientIP,
               INET6_ADDRSTRLEN);
+    if (strcmp(clientIP, "127.0.0.1") == 0) {
+      if (gethostname(clientIP, INET6_ADDRSTRLEN) == -1) {
+        std::cerr << "Error: failed to get client IP" << std::endl;
+        return -1;
+      }
+    }
+    std::cout << clientIP << std::endl;
     if (client_fd == -1) {
       std::cerr << "Error: failed to accpet client connection from " << clientIP
                 << std::endl;
@@ -155,6 +180,10 @@ int listen_for_player_connections(int listener_fd,
   return 0;
 }
 
+/*
+ * Gets the socket file descriptor connected to the given hostname and port.
+ * Returns -1 on error.
+ */
 int get_connected_socket(const char * hostname, const char * port) {
   int server_fd;
   struct addrinfo server_info, *server_info_list, *p;
@@ -199,6 +228,10 @@ int get_connected_socket(const char * hostname, const char * port) {
   return server_fd;
 }
 
+/*
+ * Distributes player's neighboring player addresses.
+ * Returns -1 on error.
+ */
 int distribute_player_addresses(struct pollfd * pfds,
                                 char ** player_IPs,
                                 int num_players) {
@@ -238,12 +271,19 @@ int distribute_player_addresses(struct pollfd * pfds,
   return 0;
 }
 
+/*
+ * Gets the file descriptor of the accepted connection.
+ * Returns -1 on error.
+ */
 int accept_neighbor_connection(int listener_fd) {
   struct sockaddr_storage client_addr;  // connector's address information
   socklen_t addrlen = sizeof(client_addr);
   return accept(listener_fd, (struct sockaddr *)&client_addr, &addrlen);
 }
 
+/*
+ * Ringmaster prints the trace of potato and announces end game to all players.
+ */
 void handle_end_game(struct pollfd * pfds, int num_players) {
   struct potato potato;
   memset(&potato, 0, sizeof(potato));
@@ -278,13 +318,15 @@ void handle_end_game(struct pollfd * pfds, int num_players) {
   }
 }
 
+/*
+ * Player plays the game.
+ */
 void play_game(struct pollfd * pfds,
                int pfds_size,
                int player_id,
                int ringmaster_fd,
                int num_players) {
   struct potato potato;
-  srand((unsigned int)time(NULL) + player_id);
   while (true) {
     int poll_count = poll(pfds, pfds_size, -1);
     if (poll_count == -1) {
@@ -308,6 +350,7 @@ void play_game(struct pollfd * pfds,
             potato.trace[potato.size] = player_id;
             potato.size++;
             potato.hops_left--;
+            std::srand((unsigned int)time(NULL) + player_id);
             int random_index = std::rand() % 2;  // 0 or 1
             int neigh_id = (player_id + 1) % num_players;
             if (random_index == 0) {

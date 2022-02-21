@@ -17,7 +17,6 @@
 #include "potato.hpp"
 #define PORT_BUFFER_SIZE 32
 #define BACKLOG 10
-void block_program();
 int get_port_num(int socket_fd);
 void * get_in_addr(struct sockaddr * sa);
 ssize_t send_buffer(int target_fd, const void * buf, size_t len, int flags);
