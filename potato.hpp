@@ -6,7 +6,7 @@
 struct potato {
   int size;
   int hops_left;
-  int trace[MAX_HOPS + 1];
+  int trace[MAX_HOPS];
 };
 
 #endif

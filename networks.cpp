@@ -337,10 +337,10 @@ void play_game(struct pollfd * pfds,
     for (int i = 0; i < pfds_size; i++) {
       if (pfds[i].revents & POLLIN) {
         if (recv(pfds[i].fd, &potato, sizeof(potato), MSG_WAITALL) > 0) {
-          if (potato.hops_left == -1) {
+          if (potato.hops_left == 0) {
             return;
           }
-          else if (potato.hops_left == 0) {
+          else if (potato.hops_left == 1) {
             potato.trace[potato.size] = player_id;
             potato.size++;
             potato.hops_left--;
@@ -364,7 +364,7 @@ void play_game(struct pollfd * pfds,
           }
         }
         else if (pfds[i].fd == ringmaster_fd) {
-          std::cerr << "Error: disconnected from ringaster" << std::endl;
+          //std::cerr << "Error: disconnected from ringaster" << std::endl;
           return;
         }
       }

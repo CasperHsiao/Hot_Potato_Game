@@ -45,6 +45,13 @@ int main(int argc, char * argv[]) {
   }
   delete_player_IPs(player_IPs, num_players);
 
+  if (num_hops == 0) {
+    for (int i = 0; i < num_players; i++) {
+      close(pfds[i].fd);
+    }
+    return EXIT_SUCCESS;
+  }
+
   // Sends potato to the first (random) player.
   struct potato potato;
   memset(&potato, 0, sizeof(potato));

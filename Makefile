@@ -9,7 +9,7 @@ player: player.o networks.o
 ringmaster: ringmaster.o networks.o
 	g++ -o ringmaster $(CCFLAGS) ringmaster.o networks.o
 
-%.o: %.cpp networks.hpp httpParser.hpp response.hpp request.hpp
+%.o: %.cpp networks.hpp httpParser.hpp response.hpp request.hpp potato.hpp
 	g++ -c $(CCFLAGS) $<
 
 clean:
