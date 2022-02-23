@@ -53,6 +53,7 @@ void delete_player_IPs(char * player_IPs[], int num_players) {
   for (int i = 0; i < num_players; i++) {
     delete[] player_IPs[i];
   }
+  delete[] player_IPs;
 }
 
 /*

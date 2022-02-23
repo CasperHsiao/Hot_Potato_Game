@@ -32,8 +32,8 @@ int main(int argc, char * argv[]) {
   std::cout << "Hops = " << num_hops << std::endl;
 
   // Accepts all player connections
-  struct pollfd pfds[num_players];
-  char * player_IPs[num_players];
+  struct pollfd * pfds = new struct pollfd[num_players];
+  char ** player_IPs = new char *[num_players];
   if (listen_for_player_connections(listener_fd, pfds, num_players, player_IPs) == -1) {
     return EXIT_FAILURE;
   }
@@ -71,5 +71,6 @@ int main(int argc, char * argv[]) {
   for (int i = 0; i < num_players; i++) {
     close(pfds[i].fd);
   }
+  delete[] pfds;
   return EXIT_SUCCESS;
 }
